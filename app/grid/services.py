@@ -67,7 +67,7 @@ def calculate(klines, init_volume, base_price, price_decimals, grid_count, grid_
 
     logger.debug('%s %s %s' % (grid_band, buy_price_band, sell_price_band))
 
-    for index, row in klines.iterrows():
+    for row in klines:
         # 开盘价 买入
         while shift < grid_count and buy_price_band[shift] >= row.get('open'):
             logger.debug('%s 开盘价 买入 当前价格 %.3f 网格价格 %.3f %s' % (
@@ -145,11 +145,11 @@ def calculate(klines, init_volume, base_price, price_decimals, grid_count, grid_
             remain_volume -= buy_order['price'] * buy_order['amount']
             shift += 1
 
-    start_date = klines.iloc[0].get('date')
-    end_date = klines.iloc[-1].get('date')
+    start_date = klines[0].get('date')
+    end_date = klines[-1].get('date')
 
     position_amount = sum(order['amount'] for order in buy_stack)
-    position_volume = position_amount * klines.iloc[-1].get('close')
+    position_volume = position_amount * klines[-1].get('close')
     profit_total = position_volume + remain_volume - init_volume
     profit_postion = profit_total - profit_grid
 
@@ -157,12 +157,12 @@ def calculate(klines, init_volume, base_price, price_decimals, grid_count, grid_
         'start_date': start_date,
         'end_date': end_date,
         'init_volume': init_volume,
-        'remain_volume': remain_volume,
         'base_price': base_price,
         'grid_count': grid_count,
         'grid_step': grid_step,
         'position_amount': position_amount,
         'position_volume': position_volume,
+        'remain_volume': remain_volume,
         'profit_grid': profit_grid,
         'profit_postion': profit_postion,
         'profit_total': profit_total,
