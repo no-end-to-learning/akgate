@@ -1,19 +1,15 @@
 from flask import Flask
+from .encoder import CustomJSONEncoder
 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object('app.settings')
-    register_akshare(app)
-    register_grid(app)
+    app.json_encoder = CustomJSONEncoder
+    register_api(app)
     return app
 
 
-def register_akshare(flask_app):
-    from app.akshare import api
-    flask_app.register_blueprint(api, url_prefix='/api/akshare')
-
-
-def register_grid(flask_app):
-    from app.grid import api
-    flask_app.register_blueprint(api, url_prefix='/api/grid')
+def register_api(flask_app):
+    from app.api import api
+    flask_app.register_blueprint(api, url_prefix='/api')

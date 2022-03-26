@@ -5,9 +5,9 @@ import pandas as pd
 from flask import Blueprint, request, send_file
 from pre_request import pre, Rule
 
-from app.grid import services
+from app.z import services
 
-api = Blueprint('grid', __name__)
+api = Blueprint('z', __name__)
 
 # 网格数量 范围
 DEFAULT_GRID_COUNT_MIN = 5

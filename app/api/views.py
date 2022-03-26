@@ -3,9 +3,9 @@ import logging
 import akshare as ak
 from flask import Blueprint, jsonify, request
 
-logger = logging.getLogger("akshare")
+logger = logging.getLogger("api")
 
-api = Blueprint('akshare', __name__)
+api = Blueprint('api', __name__)
 
 
 @api.route("/<func_name>", methods=['GET'])

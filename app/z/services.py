@@ -4,7 +4,7 @@ import os
 
 import akshare as ak
 
-logger = logging.getLogger("grid")
+logger = logging.getLogger("z")
 
 code_rules_path = os.path.abspath(os.path.join(os.path.dirname(__file__), './assets/code_rules.json'))
 with open(code_rules_path, 'r') as f:
