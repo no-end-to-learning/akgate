@@ -1,2 +1,2 @@
-akshare>=1.4.53
+akshare>=1.6.52
 Flask==2.0.3
