@@ -1,14 +1,17 @@
 from datetime import date, datetime
 
-from flask.json import JSONEncoder
+from simplejson import JSONEncoder
 
 
 class CustomJSONEncoder(JSONEncoder):
+    def __init__(self, *args, **kwargs):
+        kwargs["ensure_ascii"] = False
+        kwargs["ignore_nan"] = True
+        super().__init__(*args, **kwargs)
+
     def default(self, obj):
-        if obj == "None" or obj == "NaN":
-            return None
-        elif isinstance(obj, datetime):
+        if isinstance(obj, datetime):
             return int(obj.timestamp() * 1000)
         elif isinstance(obj, date):
             return obj.strftime('%Y-%m-%d')
-        return JSONEncoder.default(self, obj)
+        return super().default(obj)

@@ -4,7 +4,6 @@ from .encoder import CustomJSONEncoder
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object('app.settings')
     app.json_encoder = CustomJSONEncoder
     register_api(app)
     return app
