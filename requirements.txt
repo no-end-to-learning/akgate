@@ -1,3 +1,4 @@
-akshare==1.7.56
+#akshare==1.7.56
+git+https://github.com/qiujun8023/akshare.git@master#egg=akshare
 Flask==2.1.3
 simplejson==3.17.6
