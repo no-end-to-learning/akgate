@@ -1,1 +1,1 @@
-from .json_encoder import CustomJSONEncoder
+from .json_provider import CustomJSONProvider

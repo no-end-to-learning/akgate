@@ -9,7 +9,7 @@ api = Blueprint('api', __name__)
 
 
 @api.route("/<func_name>", methods=['GET'])
-def bond_cov_comparison(func_name):
+def magic_func(func_name):
     func = getattr(ak, func_name)
     df = func(**request.args)
     records = df.to_dict('records')

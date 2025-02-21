@@ -1,10 +1,11 @@
 from flask import Flask
-from .encoder import CustomJSONEncoder
+
+from .encoder import CustomJSONProvider
 
 
 def create_app():
     app = Flask(__name__)
-    app.json_encoder = CustomJSONEncoder
+    app.json = CustomJSONProvider(app)
     register_api(app)
     return app
 
