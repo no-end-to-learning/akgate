@@ -1,0 +1,84 @@
+name: Update akshare & Build Docker
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Get latest akshare release
+        id: akshare
+        run: |
+          upstream_tag=$(curl -s https://api.github.com/repos/akfamily/akshare/releases/latest | jq -r .tag_name)
+          echo "Upstream tag: $upstream_tag"
+          TAG=${upstream_tag#release-}
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Check if update is needed
+        id: check
+        run: |
+          CURRENT_VERSION=$(grep "^akshare==" requirements.txt | cut -d= -f3)
+          echo "Current akshare version: $CURRENT_VERSION"
+          if [ "$CURRENT_VERSION" = "$TAG" ]; then
+            echo "update_needed=false" >> $GITHUB_ENV
+          else
+            echo "update_needed=true" >> $GITHUB_ENV
+          fi
+
+      - name: Update requirements.txt
+        if: env.update_needed == 'true'
+        run: |
+          sed -i "s/^akshare==.*/akshare==$TAG/" requirements.txt
+          cat requirements.txt
+
+      - name: Commit changes and tag
+        if: env.update_needed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add requirements.txt
+          git commit -m "Update akshare to $TAG"
+          git push origin HEAD:master
+          git tag $TAG
+          git push origin $TAG
+
+      - name: Set Docker build tag
+        if: env.update_needed == 'true'
+        run: echo "DOCKER_TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Set up QEMU
+        if: env.update_needed == 'true'
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        if: env.update_needed == 'true'
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        if: env.update_needed == 'true'
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker Build & Push
+        if: env.update_needed == 'true'
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          build-args: |
+            VERSION=${{ env.DOCKER_TAG }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/akgate:${{ env.DOCKER_TAG }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/akgate:latest
