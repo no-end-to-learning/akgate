@@ -20,15 +20,22 @@ jobs:
         run: |
           upstream_tag=$(curl -s https://api.github.com/repos/akfamily/akshare/releases/latest | jq -r .tag_name)
           echo "Upstream tag: $upstream_tag"
-          TAG=${upstream_tag#release-}
-          echo "TAG=$TAG" >> $GITHUB_ENV
+
+          # 去掉 release- 前缀
+          TAG_FULL=${upstream_tag#release-}  # e.g. v1.17.83
+
+          # 用于 requirements.txt 的纯数字版本
+          REQ_VERSION=${TAG_FULL#v}          # 去掉 v 前缀, e.g. 1.17.83
+
+          echo "TAG_FULL=$TAG_FULL" >> $GITHUB_ENV
+          echo "REQ_VERSION=$REQ_VERSION" >> $GITHUB_ENV
 
       - name: Check if update is needed
         id: check
         run: |
           CURRENT_VERSION=$(grep "^akshare==" requirements.txt | cut -d= -f3)
           echo "Current akshare version: $CURRENT_VERSION"
-          if [ "$CURRENT_VERSION" = "$TAG" ]; then
+          if [ "$CURRENT_VERSION" = "${{ env.REQ_VERSION }}" ]; then
             echo "update_needed=false" >> $GITHUB_ENV
           else
             echo "update_needed=true" >> $GITHUB_ENV
@@ -37,7 +44,7 @@ jobs:
       - name: Update requirements.txt
         if: env.update_needed == 'true'
         run: |
-          sed -i "s/^akshare==.*/akshare==$TAG/" requirements.txt
+          sed -i "s/^akshare==.*/akshare==${{ env.REQ_VERSION }}/" requirements.txt
           cat requirements.txt
 
       - name: Commit changes and tag
@@ -46,14 +53,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add requirements.txt
-          git commit -m "Update akshare to $TAG"
+          git commit -m "Update akshare to ${{ env.REQ_VERSION }}"
           git push origin HEAD:master
-          git tag $TAG
-          git push origin $TAG
+          git tag ${{ env.TAG_FULL }}
+          git push origin ${{ env.TAG_FULL }}
 
       - name: Set Docker build tag
         if: env.update_needed == 'true'
-        run: echo "DOCKER_TAG=$TAG" >> $GITHUB_ENV
+        run: echo "DOCKER_TAG=${{ env.TAG_FULL }}" >> $GITHUB_ENV
 
       - name: Set up QEMU
         if: env.update_needed == 'true'
