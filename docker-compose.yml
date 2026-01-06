@@ -1,7 +1,27 @@
-version: '3'
 services:
   akgate:
-    image: qiujun8023/akgate
+    image: qiujun8023/akgate:latest
+    container_name: akgate
     restart: unless-stopped
     ports:
-      - 5000:5000
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - ENABLE_FUNCTION_WHITELIST=false
+      - LOG_LEVEL=INFO
+      # - ALLOWED_FUNCTIONS=stock_zh_a_hist,fund_etf_hist_em
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    # 资源限制（可选）
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '1'
+    #       memory: 512M
+    #     reservations:
+    #       cpus: '0.25'
+    #       memory: 256M
