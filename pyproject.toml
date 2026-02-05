@@ -30,7 +30,7 @@ classifiers = [
 ]
 dependencies = [
     "flask~=3.1.0",
-    "akshare==1.18.21",
+    "akshare==1.18.22",
     "pandas~=2.2.3",
     "simplejson~=3.20.1",
     "gunicorn~=23.0.0",
