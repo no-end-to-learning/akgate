@@ -60,10 +60,10 @@ class InvalidParameterError(APIError):
 class DataFetchError(APIError):
     """数据获取异常"""
 
-    def __init__(self, message: str):
+    def __init__(self, message: str, status_code: int = 500):
         super().__init__(
             message=message,
-            status_code=500,
+            status_code=status_code,
             error_code='DATA_FETCH_ERROR'
         )
 
