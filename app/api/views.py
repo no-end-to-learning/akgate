@@ -147,13 +147,13 @@ def call_function(func_name: str):
         logger.info(f"API call: {func_name} - params: {params}")
         result = func(**params)
     except TypeError as e:
-        logger.warning(f"Parameter error: {func_name} - {str(e)}")
+        logger.warning(f"Parameter error: {func_name} - {e}")
         raise InvalidParameterError(f"Invalid parameters: {str(e)}")
-    except requests.exceptions.ConnectionError:
-        logger.warning(f"Connection error: {func_name} - remote closed connection")
+    except requests.exceptions.ConnectionError as e:
+        logger.warning(f"Connection error: {func_name} - {e}")
         raise DataFetchError("Upstream service unavailable, please retry later", status_code=503)
     except Exception as e:
-        logger.error(f"Data fetch error: {func_name} - {str(e)}", exc_info=True)
+        logger.error(f"Data fetch error: {func_name} - {e}")
         raise DataFetchError(f"Failed to fetch data: {str(e)}")
 
     # 转换结果
